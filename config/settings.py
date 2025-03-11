@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'accounts',
     'problems',
     'markdownx',
+    'taggit',  # タグ機能を追加
 ]
 
 MIDDLEWARE = [

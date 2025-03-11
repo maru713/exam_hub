@@ -9,8 +9,9 @@ class ProblemListView(ListView):
     context_object_name = 'problems'
     paginate_by = 20
 
-    def get_queryset(self):
-        return Problem.objects.select_related('category').order_by('-created_at')
+def get_queryset(self):
+    return Problem.objects.select_related('grade', 'subject', 'topic').order_by('-created_at')
+
 
 class ProblemDetailView(DetailView):
     model = Problem

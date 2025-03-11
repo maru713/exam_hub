@@ -6,16 +6,31 @@ and interactions with other parts of the application.
 from django.db import models
 from django.conf import settings
 from markdownx.models import MarkdownxField
-
-
-class ProblemCategory(models.Model):
-    """
-    ProblemCategory represents a category for grouping problems.
-    """
-    name = models.CharField(max_length=100, unique=True)
+from taggit.managers import TaggableManager  # タグ機能
+class Grade(models.Model):
+    """学年 (例: 中学1年、高校2年)"""
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
-        return str(self.name)
+        return self.name
+
+class Subject(models.Model):
+    """教科 (例: 数学、英語、理科)"""
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Topic(models.Model):
+    """単元 (例: 数学の「確率」、英語の「文法」)"""
+    name = models.CharField(max_length=100)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="topics")
+
+    class Meta:
+        unique_together = ('name', 'subject')
+
+    def __str__(self):
+        return f"{self.subject.name} - {self.name}"
 
 
 
@@ -29,7 +44,6 @@ class Problem(models.Model):
         answer (str): The answer to the problem.
         explanation (str): Optional explanation or commentary.
         difficulty (int): The difficulty level of the problem.
-        category (ProblemCategory): The category to which the problem belongs.
         created_at (datetime): The timestamp when the problem was created.
     """
     title = models.CharField(max_length=200)
@@ -38,14 +52,15 @@ class Problem(models.Model):
     answer = MarkdownxField()  # 解答も Markdown にすると、リッチなフォーマットが可能
     explanation = MarkdownxField(blank=True, null=True)
     difficulty = models.IntegerField(default=1)
-    category = models.ForeignKey(
-        ProblemCategory,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='problems'
-    )
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, related_name="problems")
+    subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, blank=True, related_name="problems")
+    topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, blank=True, related_name="problems")
+
+    # タグ機能を追加
+    tags = TaggableManager(blank=True)
 
     def __str__(self):
         return str(self.title)
