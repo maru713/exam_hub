@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Exam Hub{% endblock %}</title>
+    <!-- BootstrapなどのCSSライブラリを読み込む場合はこちらに記述 -->
+    <!-- MathJax の読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
+</head>
+<body>
+    <header>
+        <h1>Exam Hub</h1>
+        <nav>
+            <!-- ナビゲーションメニュー -->
+            {% if user.is_authenticated %}
+                <p>ようこそ、{{ user.username }} さん</p>
+                <a href="{% url 'problems:create' %}">問題作成</a>
+                <a href="{% url 'accounts:logout' %}">ログアウト</a>
+            {% else %}
+                <a href="{% url 'accounts:register' %}">新規登録</a>
+                <a href="{% url 'accounts:login' %}">ログイン</a>
+            {% endif %}
+            <a href="{% url 'problems:list' %}">問題一覧</a>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Exam Hub</p>
+    </footer>
+</body>
+</html>

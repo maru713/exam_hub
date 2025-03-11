@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load markdownx_tags %}
+{% block title %}{{ problem.title }} | Exam Hub{% endblock %}
+
+{% block content %}
+  <h2>{{ problem.title }}</h2>
+  <div>
+    <h4>問題文</h4>
+    <div class="markdown-content">
+      {{ problem.body|markdownx }}
+    </div>
+  </div>
+  <div>
+    <h4>解答</h4>
+    <div class="markdown-content">
+      {{ problem.answer|markdownx }}
+    </div>
+  </div>
+  {% if problem.explanation %}
+    <div>
+      <h4>解説</h4>
+      <div class="markdown-content">
+        {{ problem.explanation|markdownx }}
+      </div>
+    </div>
+  {% endif %}
+  <p><strong>難易度:</strong> {{ problem.difficulty }}</p>
+  {% if problem.category %}
+    <p><strong>カテゴリー:</strong> {{ problem.category.name }}</p>
+  {% endif %}
+  <a href="{% url 'problems:edit' problem.id %}">編集</a>
+  <a href="{% url 'problems:delete' problem.id %}">削除</a>
+  <a href="{% url 'problems:list' %}" class="btn btn-secondary">一覧に戻る</a>
+{% endblock %}

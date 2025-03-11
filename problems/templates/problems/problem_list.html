@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}問題一覧 | Exam Hub{% endblock %}
+
+{% block content %}
+  <h1>演習問題一覧</h1>
+  <ul>
+    {% for problem in problems %}
+      <li>
+        <!-- detail ビューへのリンクを作成 -->
+        <a href="{% url 'problems:detail' problem.pk %}">{{ problem.title }}</a>
+        (難易度：{{ problem.difficulty }})
+        {% if problem.category %}
+          [{{ problem.category.name }}]
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>問題が登録されていません。</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
