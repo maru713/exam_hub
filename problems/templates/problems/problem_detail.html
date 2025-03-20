@@ -4,31 +4,61 @@
 
 {% block content %}
   <h2>{{ problem.title }}</h2>
+  
+  <!-- 問題文 -->
   <div>
     <h4>問題文</h4>
     <div class="markdown-content">
       {{ problem.body|markdownx }}
     </div>
   </div>
+
+  <!-- 解答 & 解説（最初は非表示）-->
   <div>
-    <h4>解答</h4>
-    <div class="markdown-content">
-      {{ problem.answer|markdownx }}
+    <h4>解答と解説</h4>
+    <button id="toggle-answer-btn" onclick="toggleAnswerAndExplanation()">答えを見る</button>
+    <div id="answer-section" style="display: none;">
+      <div>
+        <h4>解答</h4>
+        <div class="markdown-content">
+          {{ problem.answer|markdownx }}
+        </div>
+      </div>
+      {% if problem.explanation %}
+        <div>
+          <h4>解説</h4>
+          <div class="markdown-content">
+            {{ problem.explanation|markdownx }}
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
-  {% if problem.explanation %}
-    <div>
-      <h4>解説</h4>
-      <div class="markdown-content">
-        {{ problem.explanation|markdownx }}
-      </div>
-    </div>
-  {% endif %}
+
   <p><strong>難易度:</strong> {{ problem.difficulty }}</p>
+  
   {% if problem.category %}
     <p><strong>カテゴリー:</strong> {{ problem.category.name }}</p>
   {% endif %}
+
   <a href="{% url 'problems:edit' problem.id %}">編集</a>
   <a href="{% url 'problems:delete' problem.id %}">削除</a>
   <a href="{% url 'problems:list' %}" class="btn btn-secondary">一覧に戻る</a>
+
+  <!-- JavaScriptで答えと解説を表示/非表示にする -->
+  <script>
+    function toggleAnswerAndExplanation() {
+        let answerSection = document.getElementById("answer-section");
+        let button = document.getElementById("toggle-answer-btn");
+
+        if (answerSection.style.display === "none") {
+            answerSection.style.display = "block";
+            button.innerText = "答えを隠す";
+        } else {
+            answerSection.style.display = "none";
+            button.innerText = "答えを見る";
+        }
+    }
+  </script>
+
 {% endblock %}

@@ -7,7 +7,61 @@
   <h1>{% if object %}問題の編集{% else %}新規問題の作成{% endif %}</h1>
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">保存</button>
+    <div style="display: flex; gap: 20px;">
+      <!-- 入力フォーム -->
+      <div style="width: 50%;">
+        <h3>問題情報</h3>
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+
+      <!-- プレビュー表示 -->
+      <div style="width: 50%;">
+        <h3>プレビュー</h3>
+        <div>
+          <h4>問題文</h4>
+          <div id="preview-body" class="markdown-content"></div>
+        </div>
+        <div>
+          <h4>解答</h4>
+          <div id="preview-answer" class="markdown-content"></div>
+        </div>
+        <div>
+          <h4>解説</h4>
+          <div id="preview-explanation" class="markdown-content"></div>
+        </div>
+      </div>
+    </div>
   </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const updatePreview = (inputId, previewId) => {
+            document.getElementById(inputId).addEventListener("input", function() {
+                let content = this.value;
+                fetch("{% url 'problems:markdown_preview' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ content: content })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(previewId).innerHTML = data.markdown;
+                    MathJax.typeset();  // ← 数式を再レンダリング
+                })
+                .catch(error => console.error("Markdown変換エラー:", error));
+            });
+        };
+    
+        updatePreview("id_body", "preview-body");
+        updatePreview("id_answer", "preview-answer");
+        updatePreview("id_explanation", "preview-explanation");
+    });
+    
+</script>
+
+
 {% endblock %}

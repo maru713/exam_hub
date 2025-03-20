@@ -2,6 +2,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Problem
 from .forms import ProblemForm  # カスタムフォームを作る場合
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import markdown
 
 class ProblemListView(ListView):
     model = Problem
@@ -52,3 +55,14 @@ class ProblemDeleteView(LoginRequiredMixin, DeleteView):
             return redirect('problems:list')
         return super().dispatch(request, *args, **kwargs)
 
+
+@csrf_exempt
+def markdown_preview(request):
+    """ユーザーが入力した Markdown を HTML に変換する API"""
+    if request.method == "POST":
+        import json
+        data = json.loads(request.body)
+        markdown_text = data.get("content", "")
+        html = markdown.markdown(markdown_text)
+        return JsonResponse({"markdown": html})
+    return JsonResponse({"error": "Invalid request"}, status=400)
