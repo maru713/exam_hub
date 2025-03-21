@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'markdownx',
     'taggit',  # タグ機能を追加
     'django_extensions',
+    'pages',
 ]
 
 MIDDLEWARE = [

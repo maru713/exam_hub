@@ -1,0 +1,8 @@
+<!-- templates/pages/home.html -->
+{% extends 'base.html' %}
+{% block title %}トップページ | Exam Hub{% endblock %}
+
+{% block content %}
+  <h1>ようこそ Exam Hub へ！</h1>
+  <p><a href="{% url 'problems:list' %}">問題一覧を見る</a></p>
+{% endblock %}
