@@ -40,9 +40,10 @@
   {% if problem.category %}
     <p><strong>カテゴリー:</strong> {{ problem.category.name }}</p>
   {% endif %}
-
-  <a href="{% url 'problems:edit' problem.id %}">編集</a>
-  <a href="{% url 'problems:delete' problem.id %}">削除</a>
+  {% if request.user == problem.author %}
+    <a href="{% url 'problems:edit' problem.id %}">編集</a>
+    <a href="{% url 'problems:delete' problem.id %}">削除</a>
+  {% endif %}
   <a href="{% url 'problems:list' %}" class="btn btn-secondary">一覧に戻る</a>
 
   <!-- JavaScriptで答えと解説を表示/非表示にする -->

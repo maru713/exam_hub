@@ -39,21 +39,17 @@ class ProblemUpdateView(LoginRequiredMixin, UpdateView):
     form_class = ProblemForm
     template_name = 'problems/problem_form.html'
     success_url = reverse_lazy('problems:list')
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.get_object().author != request.user:
-            return redirect('problems:list')
-        return super().dispatch(request, *args, **kwargs)
+    # 自分の作成した問題のみ編集・削除できるように制限
+    def get_queryset(self):
+        return Problem.objects.filter(author=self.request.user)  # 自分の問題のみ取得
 
 class ProblemDeleteView(LoginRequiredMixin, DeleteView):
     model = Problem
     template_name = 'problems/problem_confirm_delete.html'
     success_url = reverse_lazy('problems:list')
 
-    def dispatch(self, request, *args, **kwargs):
-        if self.get_object().author != request.user:
-            return redirect('problems:list')
-        return super().dispatch(request, *args, **kwargs)
+    def get_queryset(self):
+        return Problem.objects.filter(author=self.request.user)  # 自分の問題のみ削除可能
 
 
 @csrf_exempt
