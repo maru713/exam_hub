@@ -1,9 +1,11 @@
 
 
-from django.contrib.auth import login, logout
-from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, get_user_model
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegisterForm
+from django.contrib.auth.decorators import login_required
+from .models import Follow, User
 
 def login_view(request):
     """
@@ -42,3 +44,22 @@ def register_view(request):
     else:
         form = UserRegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
+
+User = get_user_model()
+
+def profile_view(request, username):
+    user = get_object_or_404(User, username=username)
+    return render(request, 'accounts/profile.html', {'profile_user': user})
+
+@login_required
+def follow_user(request, username):
+    target_user = get_object_or_404(User, username=username)
+    if request.user != target_user:
+        Follow.objects.get_or_create(follower=request.user, followed=target_user)
+    return redirect('accounts:profile', username=username)
+
+@login_required
+def unfollow_user(request, username):
+    target_user = get_object_or_404(User, username=username)
+    Follow.objects.filter(follower=request.user, followed=target_user).delete()
+    return redirect('accounts:profile', username=username)

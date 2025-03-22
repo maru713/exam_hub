@@ -18,6 +18,7 @@
           {{ problem.title }}
         </a><br>
         <small>難易度：{{ problem.difficulty }}</small>
+          <small>｜ 投稿者：<a href="{% url 'accounts:profile' problem.author.username %}">{{ problem.author.username }}</a></small>
         {% if problem.category %}
           <small>｜ カテゴリ：{{ problem.category.name }}</small>
         {% endif %}

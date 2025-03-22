@@ -40,6 +40,9 @@
   {% if problem.category %}
     <p><strong>カテゴリー:</strong> {{ problem.category.name }}</p>
   {% endif %}
+  
+  <p><strong>投稿者:</strong> <a href="{% url 'accounts:profile' problem.author.username %}">{{ problem.author.username }}</a></p>
+  
   {% if request.user == problem.author %}
     <a href="{% url 'problems:edit' problem.id %}">編集</a>
     <a href="{% url 'problems:delete' problem.id %}">削除</a>
