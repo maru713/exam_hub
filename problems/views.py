@@ -13,8 +13,15 @@ class ProblemListView(ListView):
     paginate_by = 20
 
 def get_queryset(self):
-    return Problem.objects.select_related('grade', 'subject', 'topic').order_by('-created_at')
-
+    queryset = Problem.objects.select_related('author').order_by('-created_at')
+    query = self.request.GET.get('q')
+    if query:
+        queryset = queryset.filter(
+            Q(title__icontains=query) |
+            Q(body__icontains=query) |
+            Q(answer__icontains=query)
+        )
+    return queryset
 
 class ProblemDetailView(DetailView):
     model = Problem

@@ -4,14 +4,22 @@
 
 {% block content %}
   <h1>演習問題一覧</h1>
+  <form method="get" action="{% url 'problems:list' %}" style="margin-bottom: 1em;">
+    <input type="text" name="q" placeholder="検索キーワード" value="{{ request.GET.q }}" style="padding: 6px; width: 300px;">
+    <button type="submit" style="padding: 6px 12px;">検索</button>
+  </form>
+  {% if request.GET.q %}
+    <p>{{ problems|length }} 件の結果が見つかりました。</p>
+  {% endif %}
   <ul>
     {% for problem in problems %}
-      <li>
-        <!-- detail ビューへのリンクを作成 -->
-        <a href="{% url 'problems:detail' problem.pk %}">{{ problem.title }}</a>
-        (難易度：{{ problem.difficulty }})
+      <li style="margin-bottom: 1em; padding: 1em; border: 1px solid #ddd; border-radius: 5px;">
+        <a href="{% url 'problems:detail' problem.pk %}" style="font-weight: bold;">
+          {{ problem.title }}
+        </a><br>
+        <small>難易度：{{ problem.difficulty }}</small>
         {% if problem.category %}
-          [{{ problem.category.name }}]
+          <small>｜ カテゴリ：{{ problem.category.name }}</small>
         {% endif %}
       </li>
     {% empty %}
