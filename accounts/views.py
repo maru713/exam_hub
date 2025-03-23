@@ -48,7 +48,14 @@ User = get_user_model()
 
 def profile_view(request, username):
     user = get_object_or_404(User, username=username)
-    return render(request, 'accounts/profile.html', {'profile_user': user})
+    context = {
+        'profile_user': user,
+        'is_own_profile': request.user == user,
+        'followers_count': Follow.objects.filter(following=user).count(),
+        'following_count': Follow.objects.filter(follower=user).count(),
+        'user_problems': Problem.objects.filter(author=user),
+    }
+    return render(request, 'accounts/profile.html', context=context)
 
 @login_required
 def follow_user(request, username):
