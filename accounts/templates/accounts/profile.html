@@ -24,10 +24,3 @@
     {% endfor %}
   </ul>
 {% endblock %}
-context = {
-  'profile_user': user,
-  'is_own_profile': request.user == user,
-  'followers_count': Follow.objects.filter(following=user).count(),
-  'following_count': Follow.objects.filter(follower=user).count(),
-  'user_problems': Problem.objects.filter(author=user),
-}

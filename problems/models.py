@@ -65,3 +65,24 @@ class Problem(models.Model):
     def __str__(self):
         return str(self.title)
 
+class Answer(models.Model):
+    """
+    ユーザーが投稿した問題への回答。
+
+    Attributes:
+        problem (ForeignKey): 回答対象の問題。
+        author (ForeignKey): 回答者。
+        content (Text): Markdown形式で記述された本文。
+        image (Image): 任意の画像（数式の手書きなど）。
+        created_at (DateTime): 作成日時。
+        updated_at (DateTime): 更新日時。
+    """
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='answers')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='answers')
+    content = MarkdownxField()
+    image = models.ImageField(upload_to='answer_images/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Answer by {self.author} on {self.problem}"
