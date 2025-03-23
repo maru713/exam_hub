@@ -26,6 +26,7 @@
             <!-- ナビゲーションメニュー -->
             {% if user.is_authenticated %}
                 <p>ようこそ、{{ user.username }} さん</p>
+                <a href="{% url 'accounts:mypage' %}">マイページ</a>
                 <a href="{% url 'problems:create' %}">問題作成</a>
                 <a href="{% url 'accounts:logout' %}">ログアウト</a>
             {% else %}

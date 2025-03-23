@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load follow_tags %}
 {% block title %}{{ profile_user.username }} のプロフィール | Exam Hub{% endblock %}
 
 {% block content %}
@@ -13,4 +13,21 @@
     <a href="{% url 'accounts:follow' profile_user.username %}" class="btn btn-primary">Follow</a>
   {% endif %}
 {% endif %}
+  <p>フォロー中: {{ following_count }} | フォロワー: {{ followers_count }}</p>
+
+  <h3>{{ profile_user.username }} の投稿</h3>
+  <ul>
+    {% for problem in user_problems %}
+      <li><a href="{% url 'problems:detail' problem.pk %}">{{ problem.title }}</a></li>
+    {% empty %}
+      <li>まだ投稿がありません。</li>
+    {% endfor %}
+  </ul>
 {% endblock %}
+context = {
+  'profile_user': user,
+  'is_own_profile': request.user == user,
+  'followers_count': Follow.objects.filter(following=user).count(),
+  'following_count': Follow.objects.filter(follower=user).count(),
+  'user_problems': Problem.objects.filter(author=user),
+}

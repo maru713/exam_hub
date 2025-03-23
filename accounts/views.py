@@ -1,11 +1,10 @@
-
-
 from django.contrib.auth import login, logout, get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from .models import Follow, User
+from problems.models import Problem
 
 def login_view(request):
     """
@@ -55,11 +54,23 @@ def profile_view(request, username):
 def follow_user(request, username):
     target_user = get_object_or_404(User, username=username)
     if request.user != target_user:
-        Follow.objects.get_or_create(follower=request.user, followed=target_user)
+        Follow.objects.get_or_create(follower=request.user, following=target_user)
     return redirect('accounts:profile', username=username)
 
 @login_required
 def unfollow_user(request, username):
     target_user = get_object_or_404(User, username=username)
-    Follow.objects.filter(follower=request.user, followed=target_user).delete()
+    Follow.objects.filter(follower=request.user, following=target_user).delete()
     return redirect('accounts:profile', username=username)
+
+@login_required
+def mypage_view(request):
+    user = request.user
+    context = {
+        'profile_user': user,
+        'is_own_profile': True,
+        'followers_count': Follow.objects.filter(following=user).count(),
+        'following_count': Follow.objects.filter(follower=user).count(),
+        'user_problems': Problem.objects.filter(author=user),
+    }
+    return render(request, 'accounts/mypage.html', context)

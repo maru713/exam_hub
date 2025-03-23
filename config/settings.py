@@ -38,12 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
     'problems',
     'markdownx',
     'taggit',  # タグ機能を追加
     'django_extensions',
     'pages',
+    "accounts.apps.AccountsConfig",
 ]
 
 MIDDLEWARE = [
@@ -84,8 +84,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'exam_hub',
-        'USER': 'exam_user',
-        'PASSWORD': 'securepassword',
+        'USER': 'maru',  # ← ここをpostgresではなく、"maru" にする！
+        'PASSWORD': '',  # 必要ならここにパスワード
         'HOST': 'localhost',
         'PORT': '5432',
     }
