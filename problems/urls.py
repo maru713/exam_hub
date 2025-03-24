@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .views import (
     ProblemListView,
     ProblemDetailView,
@@ -19,4 +20,6 @@ urlpatterns = [
 
     # 追加: Markdown プレビュー API
     path('preview/', markdown_preview, name='markdown_preview'),
+    path('problems/<int:problem_id>/answer/', views.submit_answer, name='submit_answer'),
+    path('answers/<int:answer_id>/react/<str:reaction_type>/', views.toggle_reaction, name='toggle_reaction'),
 ]

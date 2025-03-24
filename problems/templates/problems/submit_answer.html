@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2 class="mt-4">Answer to: {{ problem.title }}</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    {{ form.content.label_tag }}
+    {{ form.content }}
+    {% if form.content.errors %}
+      <div class="text-danger">{{ form.content.errors }}</div>
+    {% endif %}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit Answer</button>
+</form>
+
+<a href="{% url 'problems:detail' problem.id %}" class="btn btn-link mt-3">Back to problem</a>
+{% endblock %}

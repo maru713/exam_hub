@@ -81,3 +81,24 @@ def mypage_view(request):
         'user_problems': Problem.objects.filter(author=user),
     }
     return render(request, 'accounts/mypage.html', context)
+
+@login_required
+def toggle_reaction(request, answer_id, reaction_type):
+    """
+    ユーザーが回答に👍👎リアクションするビュー
+    """
+    answer = get_object_or_404(Answer, pk=answer_id)
+    reaction, created = AnswerReaction.objects.get_or_create(
+        user=request.user,
+        answer=answer,
+        defaults={'reaction_type': reaction_type}
+    )
+
+    if not created:
+        if reaction.reaction_type == reaction_type:
+            reaction.delete()  # 同じ反応を2回押すと取り消し
+        else:
+            reaction.reaction_type = reaction_type
+            reaction.save()
+
+    return redirect('problem_detail', pk=answer.problem.id)

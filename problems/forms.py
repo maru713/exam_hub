@@ -4,7 +4,7 @@ This module contains form definitions for the Problem model, including Markdown 
 
 from django import forms
 from markdownx.widgets import MarkdownxWidget  # third-party import を上に移動
-from .models import Problem
+from .models import Problem, Answer
 class ProblemForm(forms.ModelForm):
     """Form for creating and editing Problem instances with Markdown support."""
     class Meta:
@@ -16,4 +16,12 @@ class ProblemForm(forms.ModelForm):
             'body': MarkdownxWidget(),
             'answer': MarkdownxWidget(),
             'explanation': MarkdownxWidget(),
+        }
+
+class AnswerForm(forms.ModelForm):
+    class Meta:
+        model = Answer
+        fields = ['content', 'image']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Markdownで回答を記述してください'}),
         }

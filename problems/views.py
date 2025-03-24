@@ -1,10 +1,13 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Problem
+from .models import Problem, Answer, AnswerReaction
 from .forms import ProblemForm  # カスタムフォームを作る場合
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import markdown
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import AnswerForm
 
 class ProblemListView(ListView):
     model = Problem
@@ -69,3 +72,41 @@ def markdown_preview(request):
         html = markdown.markdown(markdown_text)
         return JsonResponse({"markdown": html})
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+@login_required
+def submit_answer(request, problem_id):
+    problem = get_object_or_404(Problem, pk=problem_id)
+
+    if request.method == 'POST':
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.author = request.user
+            answer.problem = problem
+            answer.save()
+            return redirect('problem_detail', pk=problem_id)
+    else:
+        form = AnswerForm()
+
+    return render(request, 'problems/submit_answer.html', {'form': form, 'problem': problem})
+
+@login_required
+def toggle_reaction(request, answer_id, reaction_type):
+    """
+    ユーザーが回答に👍👎リアクションするビュー
+    """
+    answer = get_object_or_404(Answer, pk=answer_id)
+    reaction, created = AnswerReaction.objects.get_or_create(
+        user=request.user,
+        answer=answer,
+        defaults={'reaction_type': reaction_type}
+    )
+
+    if not created:
+        if reaction.reaction_type == reaction_type:
+            reaction.delete()  # 同じ反応を2回押すと取り消し
+        else:
+            reaction.reaction_type = reaction_type
+            reaction.save()
+
+    return redirect('problem_detail', pk=answer.problem.id)

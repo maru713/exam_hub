@@ -35,6 +35,9 @@
     </div>
   </div>
 
+  <h4>他のユーザーによる回答</h4>
+  <a href="{% url 'problems:submit_answer' problem.id %}" class="btn btn-primary">自分の回答を投稿する</a>
+
   <p><strong>難易度:</strong> {{ problem.difficulty }}</p>
   
   {% if problem.category %}
