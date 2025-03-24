@@ -86,3 +86,29 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"Answer by {self.author} on {self.problem}"
+    def good_count(self):
+        return self.reactions.filter(is_good=True).count()
+
+    def bad_count(self):
+        return self.reactions.filter(is_good=False).count()
+class AnswerReaction(models.Model):
+    """ユーザーによる単一リアクション（Good / Bad）"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='reactions')
+    is_good = models.BooleanField(default=True)
+    reacted_at = models.DateTimeField(auto_now_add=True)  # 👍👎の日時
+
+    class Meta:
+        unique_together = ('user', 'answer')  # 二重リアクション防止
+
+class AnswerRating(models.Model):
+    """回答に対する3つの観点での評価（任意）"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='ratings')
+    clarity = models.PositiveSmallIntegerField()     # 明瞭さ
+    accuracy = models.PositiveSmallIntegerField()    # 正確さ
+    originality = models.PositiveSmallIntegerField() # 独自性
+    rated_at = models.DateTimeField(auto_now_add=True)  # 評価日時
+
+    class Meta:
+        unique_together = ('user', 'answer')  # 同一ユーザーの多重評価防止
