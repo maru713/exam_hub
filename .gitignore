@@ -178,3 +178,4 @@ __pycache__/
 .idea/
 *.log
 
+scripts/dev/

@@ -74,7 +74,6 @@ class Answer(models.Model):
         author (ForeignKey): 回答者。
         answer_text (Text): Markdown形式で記述された本文。
         explanation (Text): 任意の解説。
-        image (Image): 任意の画像（数式の手書きなど）。
         created_at (DateTime): 作成日時。
         updated_at (DateTime): 更新日時。
     """
@@ -82,7 +81,6 @@ class Answer(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='answers')
     answer_text = MarkdownxField(help_text="ユーザーが考える解答")
     explanation = MarkdownxField(blank=True, null=True, help_text="解答の補足や解説（任意）")
-    image = models.ImageField(upload_to='answer_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

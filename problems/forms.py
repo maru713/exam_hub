@@ -17,11 +17,11 @@ class ProblemForm(forms.ModelForm):
             'answer': MarkdownxWidget(),
             'explanation': MarkdownxWidget(),
         }
-
 class AnswerForm(forms.ModelForm):
     class Meta:
         model = Answer
-        fields = ['content', 'image']
+        fields = ['answer_text', 'explanation']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Markdownで回答を記述してください'}),
+            'answer_text': forms.Textarea(attrs={'rows': 5, 'placeholder': '回答を記述してください'}),
+            'explanation': forms.Textarea(attrs={'rows': 3, 'placeholder': '解説（任意）'}),
         }

@@ -5,7 +5,7 @@ from .forms import ProblemForm  # カスタムフォームを作る場合
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import markdown
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from .forms import AnswerForm
 

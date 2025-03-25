@@ -1,20 +1,20 @@
-{% extends 'base.html' %}
-{% load static %}
-
+{% extends "base.html" %}
 {% block content %}
-<h2 class="mt-4">Answer to: {{ problem.title }}</h2>
+<h2>Answer to: {{ problem.title }}</h2>
 
-<form method="post">
-  {% csrf_token %}
-  <div class="mb-3">
-    {{ form.content.label_tag }}
-    {{ form.content }}
-    {% if form.content.errors %}
-      <div class="text-danger">{{ form.content.errors }}</div>
-    {% endif %}
-  </div>
-  <button type="submit" class="btn btn-primary">Submit Answer</button>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+        <label for="id_answer_text">解答 (Markdown):</label><br>
+        {{ form.answer_text }}
+    </div>
+    <div>
+        <label for="id_explanation">解説 (任意, Markdown):</label><br>
+        {{ form.explanation }}
+    </div>
+    <button type="submit">Submit Answer</button>
 </form>
 
-<a href="{% url 'problems:detail' problem.id %}" class="btn btn-link mt-3">Back to problem</a>
+<p><a href="{% url 'problems:detail' problem.id %}">問題に戻る</a></p>
 {% endblock %}

@@ -36,6 +36,22 @@
   </div>
 
   <h4>他のユーザーによる回答</h4>
+  {% for answer in problem.answers.all %}
+    <div class="card my-3">
+      <div class="card-body">
+        <p><strong>{{ answer.author.username }}</strong> さんの回答：</p>
+        <div class="markdown-content">
+          <h5>解答</h5>
+          {{ answer.content|markdownx }}
+          <h5>解説</h5>
+          {{ answer.explanation|markdownx }}
+        </div>
+        <p class="text-muted">投稿日時: {{ answer.created_at|date:"Y年n月j日 H:i" }}</p>
+      </div>
+    </div>
+  {% empty %}
+    <p>まだ他のユーザーの回答はありません。</p>
+  {% endfor %}
   <a href="{% url 'problems:submit_answer' problem.id %}" class="btn btn-primary">自分の回答を投稿する</a>
 
   <p><strong>難易度:</strong> {{ problem.difficulty }}</p>
