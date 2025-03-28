@@ -134,7 +134,7 @@ def submit_answer(request, problem_id):
             answer.author = request.user
             answer.problem = problem
             answer.save()
-            return redirect('problem_detail', pk=problem_id)
+            return redirect('problems:detail', pk=answer.problem.id)
     else:
         form = AnswerForm()
 
@@ -142,21 +142,20 @@ def submit_answer(request, problem_id):
 
 @login_required
 def toggle_reaction(request, answer_id, reaction_type):
-    """
-    ユーザーが回答に👍👎リアクションするビュー
-    """
     answer = get_object_or_404(Answer, pk=answer_id)
+    is_good = reaction_type == 'good'
+
     reaction, created = AnswerReaction.objects.get_or_create(
         user=request.user,
         answer=answer,
-        defaults={'is_good': reaction_type == 'good'}
+        defaults={'is_good': is_good}
     )
 
     if not created:
-        if reaction.reaction_type == reaction_type:
-            reaction.delete()  # 同じ反応を2回押すと取り消し
+        if reaction.is_good == is_good:
+            reaction.delete()
         else:
-            reaction.reaction_type = reaction_type
+            reaction.is_good = is_good
             reaction.save()
 
-    return redirect('problem_detail', pk=answer.problem.id)
+    return redirect('problems:detail', pk=answer.problem.id)
