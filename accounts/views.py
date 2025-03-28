@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from .models import Follow, User
-from problems.models import Problem
+from problems.models import Problem, Answer, AnswerReaction
 
 def login_view(request):
     """
@@ -91,7 +91,7 @@ def toggle_reaction(request, answer_id, reaction_type):
     reaction, created = AnswerReaction.objects.get_or_create(
         user=request.user,
         answer=answer,
-        defaults={'reaction_type': reaction_type}
+        defaults={'is_good': reaction_type == 'good'}
     )
 
     if not created:

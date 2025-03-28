@@ -15,6 +15,26 @@
       <option value="difficulty_low" {% if request.GET.sort == 'difficulty_low' %}selected{% endif %}>難易度 低い順</option>
       <option value="most_answers" {% if request.GET.sort == 'most_answers' %}selected{% endif %}>回答数が多い順</option>
     </select>
+    <select name="grade" style="padding: 6px; margin-left: 10px;">
+      <option value="">学年を選択</option>
+      {% for g in grades %}
+        <option value="{{ g.id }}" {% if request.GET.grade == g.id|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
+      {% endfor %}
+    </select>
+    
+    <select name="subject" style="padding: 6px; margin-left: 10px;">
+      <option value="">教科を選択</option>
+      {% for s in subjects %}
+        <option value="{{ s.id }}" {% if request.GET.subject == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+    
+    <select name="topic" style="padding: 6px; margin-left: 10px;">
+      <option value="">単元を選択</option>
+      {% for t in topics %}
+        <option value="{{ t.id }}" {% if request.GET.topic == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
   
     <button type="submit" style="padding: 6px 12px;">検索</button>
   </form>

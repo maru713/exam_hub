@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Problem, Answer, AnswerReaction
+from .models import Problem, Answer, AnswerReaction, Grade, Subject, Topic
 from .forms import ProblemForm  # カスタムフォームを作る場合
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -25,6 +25,17 @@ class ProblemListView(ListView):
                 Q(body__icontains=query) |
                 Q(answer__icontains=query)
             )
+        # 🔽 フィルタ追加
+        grade = self.request.GET.get('grade')
+        subject = self.request.GET.get('subject')
+        topic = self.request.GET.get('topic')
+
+        if grade:
+            queryset = queryset.filter(grade_id=grade)
+        if subject:
+            queryset = queryset.filter(subject_id=subject)
+        if topic:
+            queryset = queryset.filter(topic_id=topic)
 
         # 🔽 ソート追加
         sort = self.request.GET.get('sort')
@@ -45,10 +56,30 @@ class ProblemListView(ListView):
 
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['grades'] = Grade.objects.all()
+        context['subjects'] = Subject.objects.all()
+        context['topics'] = Topic.objects.all()
+        return context
+
 class ProblemDetailView(DetailView):
     model = Problem
     template_name = 'problems/problem_detail.html'
     context_object_name = 'problem'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        problem = self.get_object()
+        user = self.request.user
+        answer_reactions = {}
+        if user.is_authenticated:
+            for answer in problem.answers.all():
+                reaction = answer.reactions.filter(user=user).first()
+                if reaction:
+                    answer_reactions[answer.id] = 'good' if reaction.is_good else 'bad'
+        context['answer_reactions'] = answer_reactions
+        return context
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -118,7 +149,7 @@ def toggle_reaction(request, answer_id, reaction_type):
     reaction, created = AnswerReaction.objects.get_or_create(
         user=request.user,
         answer=answer,
-        defaults={'reaction_type': reaction_type}
+        defaults={'is_good': reaction_type == 'good'}
     )
 
     if not created:
