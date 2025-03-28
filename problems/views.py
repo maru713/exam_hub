@@ -8,6 +8,7 @@ import markdown
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from .forms import AnswerForm
+from django.db.models import Count, Q
 
 class ProblemListView(ListView):
     model = Problem
@@ -15,16 +16,34 @@ class ProblemListView(ListView):
     context_object_name = 'problems'
     paginate_by = 20
 
-def get_queryset(self):
-    queryset = Problem.objects.select_related('author').order_by('-created_at')
-    query = self.request.GET.get('q')
-    if query:
-        queryset = queryset.filter(
-            Q(title__icontains=query) |
-            Q(body__icontains=query) |
-            Q(answer__icontains=query)
-        )
-    return queryset
+    def get_queryset(self):
+        queryset = Problem.objects.select_related('author')
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) |
+                Q(body__icontains=query) |
+                Q(answer__icontains=query)
+            )
+
+        # 🔽 ソート追加
+        sort = self.request.GET.get('sort')
+        if sort == 'newest':
+            queryset = queryset.order_by('-created_at')
+        elif sort == 'oldest':
+            queryset = queryset.order_by('created_at')
+        elif sort == 'difficulty_high':
+            queryset = queryset.order_by('-difficulty')
+        elif sort == 'difficulty_low':
+            queryset = queryset.order_by('difficulty')
+        elif sort == 'most_answers':
+            queryset = queryset.annotate(answer_count=Count('answers')).order_by('-answer_count')
+        elif sort == 'most_good':
+            queryset = queryset.annotate(
+                good_count=Count('answers__reactions', filter=Q(answers__reactions__is_good=True))
+            ).order_by('-good_count')
+
+        return queryset
 
 class ProblemDetailView(DetailView):
     model = Problem

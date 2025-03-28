@@ -6,6 +6,16 @@
   <h1>演習問題一覧</h1>
   <form method="get" action="{% url 'problems:list' %}" style="margin-bottom: 1em;">
     <input type="text" name="q" placeholder="検索キーワード" value="{{ request.GET.q }}" style="padding: 6px; width: 300px;">
+  
+    <select name="sort" onchange="this.form.submit()" style="padding: 6px; margin-left: 10px;">
+      <option value="most_good" {% if not request.GET.sort or request.GET.sort == 'most_good' %}selected{% endif %}>いいねが多い順</option>
+      <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>新着順</option>
+      <option value="oldest" {% if request.GET.sort == 'oldest' %}selected{% endif %}>古い順</option>
+      <option value="difficulty_high" {% if request.GET.sort == 'difficulty_high' %}selected{% endif %}>難易度 高い順</option>
+      <option value="difficulty_low" {% if request.GET.sort == 'difficulty_low' %}selected{% endif %}>難易度 低い順</option>
+      <option value="most_answers" {% if request.GET.sort == 'most_answers' %}selected{% endif %}>回答数が多い順</option>
+    </select>
+  
     <button type="submit" style="padding: 6px 12px;">検索</button>
   </form>
   {% if request.GET.q %}
