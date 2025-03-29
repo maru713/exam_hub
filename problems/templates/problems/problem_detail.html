@@ -41,6 +41,12 @@
     <div class="card my-3">
       <div class="card-body">
         <p><strong>{{ answer.author.username }}</strong> さんの回答：</p>
+        <!-- 回答の目的をタグとして表示 -->
+        <div class="mb-2">
+          {% for purpose in answer.purposes.all %}
+            <span class="badge bg-secondary">{{ purpose.name }}</span>
+          {% endfor %}
+        </div>
         <div class="markdown-content">
           <h5>解答</h5>
           {{ answer.content|markdownx }}
