@@ -83,6 +83,7 @@ class Answer(models.Model):
     explanation = MarkdownxField(blank=True, null=True, help_text="解答の補足や解説（任意）")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    purposes = models.ManyToManyField('AnswerPurpose', blank=True, related_name="answers")
 
     def __str__(self):
         return f"Answer by {self.author} on {self.problem}"
@@ -112,3 +113,33 @@ class AnswerRating(models.Model):
 
     class Meta:
         unique_together = ('user', 'answer')  # 同一ユーザーの多重評価防止
+class AnswerComment(models.Model):
+    """
+    回答に対するコメント。
+
+    Attributes:
+        answer (ForeignKey): 対象の回答。
+        author (ForeignKey): コメント投稿者。
+        body (Text): コメント内容。
+        created_at (DateTime): 作成日時。
+        updated_at (DateTime): 更新日時。
+    """
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Comment by {self.author} on Answer {self.answer.id}"
+
+class AnswerPurpose(models.Model):
+    """
+    回答の目的（別解・補足・改善案など）を表すタグ的なモデル
+    """
+    key = models.SlugField(max_length=30, unique=True)  # internal name e.g., "alternative"
+    label = models.CharField(max_length=50)  # UIで表示する名前 e.g., "別解"
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.label

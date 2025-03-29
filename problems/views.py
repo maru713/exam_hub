@@ -1,7 +1,7 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Problem, Answer, AnswerReaction, Grade, Subject, Topic
-from .forms import ProblemForm  # カスタムフォームを作る場合
+from .forms import ProblemForm, AnswerCommentForm  # カスタムフォームを作る場合
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import markdown
@@ -159,3 +159,16 @@ def toggle_reaction(request, answer_id, reaction_type):
             reaction.save()
 
     return redirect('problems:detail', pk=answer.problem.id)
+
+@login_required
+def post_comment(request, answer_id):
+    """コメントの投稿処理"""
+    answer = get_object_or_404(Answer, id=answer_id)
+    if request.method == 'POST':
+        form = AnswerCommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.answer = answer
+            comment.save()
+    return redirect('detail', pk=answer.problem.id)
