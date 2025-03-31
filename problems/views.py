@@ -68,6 +68,11 @@ class ProblemDetailView(DetailView):
     template_name = 'problems/problem_detail.html'
     context_object_name = 'problem'
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related(
+            'answers__purposes', 'answers__reactions', 'answers__comments'
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         problem = self.get_object()
@@ -79,6 +84,14 @@ class ProblemDetailView(DetailView):
                 if reaction:
                     answer_reactions[answer.id] = 'good' if reaction.is_good else 'bad'
         context['answer_reactions'] = answer_reactions
+
+        # 🔽 追加: 各回答に対するコメントフォームを用意
+        comment_forms = {
+            answer.id: AnswerCommentForm()
+            for answer in problem.answers.all()
+        }
+        context['comment_forms'] = comment_forms
+
         return context
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -134,6 +147,7 @@ def submit_answer(request, problem_id):
             answer.author = request.user
             answer.problem = problem
             answer.save()
+            form.save_m2m()  # 🔥 多対多フィールドを保存（←これ重要！）
             return redirect('problems:detail', pk=answer.problem.id)
     else:
         form = AnswerForm()
@@ -171,4 +185,4 @@ def post_comment(request, answer_id):
             comment.author = request.user
             comment.answer = answer
             comment.save()
-    return redirect('detail', pk=answer.problem.id)
+    return redirect('problems:detail', pk=answer.problem.id)

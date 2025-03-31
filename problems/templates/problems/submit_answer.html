@@ -16,10 +16,13 @@
         {{ form.explanation }}
     </div>
 
-    <div>
-        <label for="id_purposes">この回答の目的（複数選択可）:</label><br>
+    <div class="form-group">
+        <label for="id_purposes">投稿の目的（必須）:</label>
         {{ form.purposes }}
-    </div>
+        {% if form.purposes.errors %}
+          <div class="text-danger">{{ form.purposes.errors }}</div>
+        {% endif %}
+      </div>
 
     <button type="submit">Submit Answer</button>
 </form>

@@ -21,11 +21,16 @@ class ProblemForm(forms.ModelForm):
 class AnswerForm(forms.ModelForm):
     class Meta:
         model = Answer
-        fields = ['answer_text', 'explanation']
+        fields = ['answer_text', 'explanation', 'purposes']
         widgets = {
-            'answer_text': forms.Textarea(attrs={'rows': 5, 'placeholder': '回答を記述してください'}),
-            'explanation': forms.Textarea(attrs={'rows': 3, 'placeholder': '解説（任意）'}),
+            'answer_text': forms.Textarea(attrs={'rows': 4}),
+            'explanation': forms.Textarea(attrs={'rows': 3}),
+            'purposes': forms.CheckboxSelectMultiple(),  # ← 複数選択を明示
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['purposes'].required = True  # ← ここがキモ
 
 class AnswerCommentForm(forms.ModelForm):
     class Meta:

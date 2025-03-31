@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load markdownx_tags %}
 {% load static %}
+{% load custom_filters %}
 {% block title %}{{ problem.title }} | Exam Hub{% endblock %}
 
 {% block content %}
@@ -44,12 +45,12 @@
         <!-- 回答の目的をタグとして表示 -->
         <div class="mb-2">
           {% for purpose in answer.purposes.all %}
-            <span class="badge bg-secondary">{{ purpose.name }}</span>
+            <span class="badge bg-secondary">{{ purpose.label }}</span>
           {% endfor %}
         </div>
         <div class="markdown-content">
           <h5>解答</h5>
-          {{ answer.content|markdownx }}
+          {{ answer.answer_text|markdownx }}
           <h5>解説</h5>
           {{ answer.explanation|markdownx }}
         </div>
@@ -76,7 +77,7 @@
       <h6>コメント:</h6>
       {% for comment in answer.comments.all %}
         <div class="border p-2 my-1">
-          <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+          <strong>{{ comment.user.username }}</strong>: {{ comment.body }}
           <span class="text-muted" style="font-size: 0.8em">({{ comment.created_at|date:"Y-m-d H:i" }})</span>
         </div>
       {% empty %}
@@ -86,11 +87,13 @@
 
     <!-- コメント投稿フォーム -->
     {% if user.is_authenticated %}
-      <form method="post" action="{% url 'problems:post_comment' answer.id %}" class="ms-3">
-        {% csrf_token %}
-        {{ comment_form.as_p }}
-        <button type="submit" class="btn btn-sm btn-outline-primary">コメント投稿</button>
-      </form>
+      {% with comment_forms|get_by_key:answer.id as form %}
+        <form method="post" action="{% url 'problems:post_comment' answer.id %}" class="ms-3">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-sm btn-outline-primary">コメント投稿</button>
+        </form>
+      {% endwith %}
     {% else %}
       <p class="ms-3 text-muted">コメントするにはログインが必要です。</p>
     {% endif %}
