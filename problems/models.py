@@ -87,11 +87,10 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"Answer by {self.author} on {self.problem}"
+    
     def good_count(self):
         return self.reactions.filter(is_good=True).count()
 
-    def bad_count(self):
-        return self.reactions.filter(is_good=False).count()
 class AnswerReaction(models.Model):
     """ユーザーによる単一リアクション（Good / Bad）"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
