@@ -82,7 +82,8 @@ class ProblemDetailView(DetailView):
             for answer in problem.answers.all():
                 reaction = answer.reactions.filter(user=user).first()
                 if reaction:
-                    answer_reactions[answer.id] = 'good' if reaction.is_good else 'bad'
+                    if reaction.is_good:
+                        answer_reactions[answer.id] = 'good'
         context['answer_reactions'] = answer_reactions
 
         # 🔽 追加: 各回答に対するコメントフォームを用意
@@ -174,9 +175,11 @@ def toggle_reaction(request, answer_id, reaction_type):
 
     return redirect('problems:detail', pk=answer.problem.id)
 
+from django.utils.timezone import localtime
+
 @login_required
 def post_comment(request, answer_id):
-    """コメントの投稿処理"""
+    """コメントの投稿処理（Ajax対応）"""
     answer = get_object_or_404(Answer, id=answer_id)
     if request.method == 'POST':
         form = AnswerCommentForm(request.POST)
@@ -185,4 +188,11 @@ def post_comment(request, answer_id):
             comment.author = request.user
             comment.answer = answer
             comment.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'username': request.user.username,
+                    'body': comment.body,
+                    'created_at': localtime(comment.created_at).strftime('%Y-%m-%d %H:%M')
+                })
+    # 通常リダイレクト（Ajaxでない or フォーム無効時）
     return redirect('problems:detail', pk=answer.problem.id)
