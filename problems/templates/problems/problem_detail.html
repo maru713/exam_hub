@@ -18,7 +18,7 @@
   <!-- 解答 & 解説（最初は非表示）-->
   <div>
     <h4>解答と解説</h4>
-    <button id="toggle-answer-btn" onclick="toggleAnswerAndExplanation()">答えを見る</button>
+    <button id="toggle-answer-btn" class="btn btn-outline-secondary my-3" onclick="toggleAnswerAndExplanation()">答えを見る</button>
     <div id="answer-section" style="display: none;">
       <div>
         <h4>解答</h4>
@@ -37,69 +37,71 @@
     </div>
   </div>
 
-  <h4>他のユーザーによる回答</h4>
-  {% for answer in problem.answers.all %}
-    <div class="card my-3">
-      <div class="card-body">
-        <p><strong>{{ answer.author.username }}</strong> さんの回答：</p>
-        <!-- 回答の目的をタグとして表示 -->
-        <div class="mb-2">
-          {% for purpose in answer.purposes.all %}
-            <span class="badge bg-secondary">{{ purpose.label }}</span>
-          {% endfor %}
+  <!-- 他のユーザーによる回答表示切り替え -->
+  <button id="toggle-user-answers" class="btn btn-outline-secondary my-3">他のユーザーの回答を見る</button>
+  <div id="user-answers-section" style="display: none;">
+    <h4>他のユーザーによる回答</h4>
+    {% for answer in problem.answers.all %}
+      <div class="card my-4 shadow-sm border border-dark">
+        <div class="card-body">
+          <p><strong>{{ answer.author.username }}</strong> さんの回答：</p>
+          <!-- 回答の目的をタグとして表示 -->
+          <div class="mb-2">
+            {% for purpose in answer.purposes.all %}
+              <span class="badge bg-secondary">{{ purpose.label }}</span>
+            {% endfor %}
+          </div>
+          <div class="markdown-content">
+            <h5>解答</h5>
+            {{ answer.answer_text|markdownx }}
+            <h5>解説</h5>
+            {{ answer.explanation|markdownx }}
+          </div>
+          <p class="text-muted">投稿日時: {{ answer.created_at|date:"Y年n月j日 H:i" }}</p>
         </div>
-        <div class="markdown-content">
-          <h5>解答</h5>
-          {{ answer.answer_text|markdownx }}
-          <h5>解説</h5>
-          {{ answer.explanation|markdownx }}
-        </div>
-        <p class="text-muted">投稿日時: {{ answer.created_at|date:"Y年n月j日 H:i" }}</p>
-      </div>
-    </div>
-    <button
-      class="reaction-button"
-      data-answer-id="{{ answer.id }}"
-      data-reaction-type="good"
-    >
-      👍 {{ answer.good_count }}
-    </button>
+        <button
+          class="reaction-button"
+          data-answer-id="{{ answer.id }}"
+          data-reaction-type="good"
+        >
+          👍 {{ answer.good_count }}
+        </button>
 
-    <button
-      class="reaction-button"
-      data-answer-id="{{ answer.id }}"
-      data-reaction-type="bad"
-    >
-      👎 {{ answer.bad_count }}
-    </button>
-    <!-- コメント一覧 -->
-    <div class="mt-3 ms-3">
-      <h6>コメント:</h6>
-      {% for comment in answer.comments.all %}
-        <div class="border p-2 my-1">
-          <strong>{{ comment.user.username }}</strong>: {{ comment.body }}
-          <span class="text-muted" style="font-size: 0.8em">({{ comment.created_at|date:"Y-m-d H:i" }})</span>
+        <!-- コメント一覧 -->
+        <div class="mt-3 ms-3">
+          <button class="btn btn-sm btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#comment-list-{{ answer.id }}">
+            コメントを見る
+          </button>
+          <div class="collapse" id="comment-list-{{ answer.id }}">
+            <div class="border p-2 comment-list" style="max-height: 200px; overflow-y: auto;">
+              {% for comment in answer.comments.all %}
+                <div class="border-bottom pb-1 mb-1">
+                  <strong>{{ comment.author.username }}</strong>: {{ comment.body }}
+                  <span class="text-muted" style="font-size: 0.8em">({{ comment.created_at|date:"Y-m-d H:i" }})</span>
+                </div>
+              {% empty %}
+                <p class="text-muted">まだコメントはありません。</p>
+              {% endfor %}
+            </div>
+          </div>
         </div>
-      {% empty %}
-        <p class="text-muted">まだコメントはありません。</p>
-      {% endfor %}
-    </div>
-
-    <!-- コメント投稿フォーム -->
-    {% if user.is_authenticated %}
-      {% with comment_forms|get_by_key:answer.id as form %}
-        <form method="post" action="{% url 'problems:post_comment' answer.id %}" class="ms-3">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-sm btn-outline-primary">コメント投稿</button>
-        </form>
-      {% endwith %}
-    {% else %}
-      <p class="ms-3 text-muted">コメントするにはログインが必要です。</p>
-    {% endif %}
-  {% empty %}
-    <p>まだ他のユーザーの回答はありません。</p>
-  {% endfor %}
+        <!-- コメント投稿フォーム -->
+        {% if user.is_authenticated %}
+          {% with comment_forms|get_by_key:answer.id as form %}
+            <form id="comment-form-{{ answer.id }}" class="comment-form" data-answer-id="{{ answer.id }}" method="post" action="{% url 'problems:post_comment' answer.id %}">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="btn btn-sm btn-outline-primary">コメント投稿</button>
+            </form>
+          {% endwith %}
+        {% else %}
+          <p class="ms-3 text-muted">コメントするにはログインが必要です。</p>
+        {% endif %}
+      </div> <!-- /card -->
+    {% empty %}
+      <p>まだ他のユーザーの回答はありません。</p>
+    {% endfor %}
+  </div> <!-- /user-answers-section -->
   <a href="{% url 'problems:submit_answer' problem.id %}" class="btn btn-primary">自分の回答を投稿する</a>
 
   <p><strong>難易度:</strong> {{ problem.difficulty }}</p>
@@ -133,4 +135,18 @@
   </script>
   <!-- TypeScriptで書いたリアクション処理（コンパイル後のJS） -->
   <script type="module" src="{% static 'js/reaction.js' %}"></script>
+  <script>
+    document.getElementById("toggle-user-answers").addEventListener("click", function() {
+      const section = document.getElementById("user-answers-section");
+      const btn = this;
+      if (section.style.display === "none") {
+        section.style.display = "block";
+        btn.innerText = "他のユーザーの回答を隠す";
+      } else {
+        section.style.display = "none";
+        btn.innerText = "他のユーザーの回答を見る";
+      }
+    });
+  </script>
+  <script type="module" src="{% static 'js/comment.js' %}"></script>
 {% endblock %}
