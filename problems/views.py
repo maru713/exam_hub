@@ -173,7 +173,10 @@ def toggle_reaction(request, answer_id, reaction_type):
             reaction.is_good = is_good
             reaction.save()
 
-    return redirect('problems:detail', pk=answer.problem.id)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'ok'})
+    else:
+        return redirect('problems:detail', pk=answer.problem.id)
 
 from django.utils.timezone import localtime
 

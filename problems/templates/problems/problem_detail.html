@@ -57,14 +57,15 @@
             <h5>解説</h5>
             {{ answer.explanation|markdownx }}
           </div>
-          <p class="text-muted">投稿日時: {{ answer.created_at|date:"Y年n月j日 H:i" }}</p>
         </div>
         <button
+          type="button"
           class="reaction-button"
           data-answer-id="{{ answer.id }}"
           data-reaction-type="good"
         >
-          👍 {{ answer.good_count }}
+          <i class="{% if answer_reactions and answer_reactions|dict_get:answer.id == 'good' %}fas{% else %}far{% endif %} fa-thumbs-up"></i>
+          <span>{{ answer.good_count }}</span>
         </button>
 
         <!-- コメント一覧 -->

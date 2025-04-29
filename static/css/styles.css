@@ -1,0 +1,15 @@
+.comment-timestamp {
+  font-size: 0.8em;
+}
+.reaction-button {
+  background: none;
+  border: none;
+  padding: 0;
+  width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex-shrink: 0; /* 親要素に広げられないようにする */
+  max-width: fit-content; /* 中身（アイコンと数字）サイズに合わせる */
+}

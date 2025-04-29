@@ -1,30 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll<HTMLButtonElement>('.reaction-button').forEach(button => {
-    button.addEventListener('click', async (event) => {
-      event.preventDefault();
+  document.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.reaction-button');
+    if (!button) return;
 
-      const answerId = button.dataset.answerId;
-      const reactionType = button.dataset.reactionType;
+    console.log('リアクションボタン押した');
+    event.preventDefault();
 
-      if (!answerId || !reactionType) return;
+    const answerId = button.dataset.answerId;
+    const reactionType = button.dataset.reactionType;
 
-      try {
-        const response = await fetch(`/problems/answers/${answerId}/react/${reactionType}/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCSRFToken(),
-            'X-Requested-With': 'XMLHttpRequest',
-          },
-        });
+    if (!answerId || !reactionType) return;
 
-        if (response.ok) {
-          location.reload(); // 簡易的にページを更新（後でDOMだけ更新にしてもOK）
-        } else {
-          console.error('リアクション失敗');
-        }
-      } catch (err) {
-        console.error('通信エラー:', err);
+    const icon = button.querySelector('i');
+    const countSpan = button.querySelector('span');
+
+    if (icon) {
+      if (icon.classList.contains('far')) {
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+      } else if (icon.classList.contains('fas')) {
+        icon.classList.remove('fas');
+        icon.classList.add('far');
       }
+    }
+
+    if (countSpan && icon) {
+      const currentCount = parseInt(countSpan.textContent || '0', 10);
+      const newCount = icon.classList.contains('fas') ? currentCount + 1 : currentCount - 1;
+      countSpan.textContent = newCount.toString();
+    }
+
+    fetch(`/problems/answers/${answerId}/react/${reactionType}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    }).catch(err => {
+      console.error('通信エラー:', err);
     });
   });
 });
